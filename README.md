@@ -1,1 +1,1 @@
-# Linear-Regression-analysis
+This Repo containes all the files related to the linear regression analysis in Literature Review The Dataset was found on the Kaggle Platform and is available for public usage. Link to the Dataset: https://www.kaggle.com/datasets/ddosad/ecommerce-customer-service-satisfaction
