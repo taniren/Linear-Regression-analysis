@@ -1,0 +1,64 @@
+import pandas as pd
+import statsmodels.api as sm
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# getting CSV
+csv_file_path = '/Users/tania_ren/Downloads/Customer_support_dataset.csv'
+customer_data = pd.read_csv(csv_file_path)
+
+# Displaying the first few rows
+customer_data.head()
+
+# Converting 'issue_reported' & 'issue_responded' to time format
+customer_data['issue_reported'] = pd.to_datetime(customer_data['Issue_reported at'], format='%d/%m/%Y %H:%M')
+customer_data['issue_responded'] = pd.to_datetime(customer_data['issue_responded'], format='%d/%m/%Y %H:%M')
+
+# response time in min
+customer_data['response_time_minutes'] = (customer_data['issue_responded'] - customer_data['issue_reported']).dt.total_seconds() / 60
+
+# response time from min to hours (important for interpretability)
+customer_data['response_time_hours'] = customer_data['response_time_minutes'] / 60
+
+# Selecting relevant columns, removing missing values
+relevant_data = customer_data[['response_time_hours', 'CSAT Score']].dropna()
+
+# Checking first few rows of preprocessed data
+print(relevant_data.head())
+
+# Defining dependent & independent variables
+X = relevant_data['response_time_hours']
+y = relevant_data['CSAT Score']
+
+# Adding a constant to the independent variable
+X = sm.add_constant(X)
+
+# Fitting regression model
+model = sm.OLS(y, X).fit()
+
+# Display results
+print(model.summary())
+
+# Visualizing
+
+plt.figure(figsize=(12, 8))
+sns.set(style="whitegrid")
+
+sns.regplot(x='response_time_hours', y='CSAT Score', data=relevant_data, line_kws={'color': 'red'}, scatter_kws={'alpha': 0.5})
+
+# Setting limits to avoid negative values
+plt.xlim(left=0)
+plt.ylim(0, 5)  # Assuming CSAT scores range from 0 to 5
+
+# Titles & labels
+plt.title('Relationship between Response Time and CSAT Score', fontsize=16)
+plt.xlabel('Response Time (hours)', fontsize=14)
+plt.ylabel('CSAT Score', fontsize=14)
+
+# Plot looks
+plt.xticks(fontsize=12)
+plt.yticks(fontsize=12)
+plt.grid(True)
+sns.despine(trim=True)
+
+plt.show()
